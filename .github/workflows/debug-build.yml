@@ -1,0 +1,49 @@
+name: Debug Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    name: 🔍 Debug Build Process
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: revplay-frontend/package-lock.json
+
+      - name: 📁 List Files
+        run: |
+          echo "Root directory:"
+          ls -la
+          echo "revplay-frontend directory:"
+          ls -la revplay-frontend/
+          echo "package.json exists:"
+          test -f revplay-frontend/package.json && echo "✅ Found" || echo "❌ Not found"
+
+      - name: 📦 Install Dependencies
+        run: |
+          cd revplay-frontend
+          npm ci
+
+      - name: 🔍 Check Angular Config
+        run: |
+          cd revplay-frontend
+          echo "Angular CLI version:"
+          npx ng version
+          echo "Build configuration:"
+          cat angular.json | jq '.projects."revplay-frontend".architect.build.configurations'
+
+      - name: 🏗️ Try Build
+        run: |
+          cd revplay-frontend
+          echo "Attempting development build..."
+          npm run build -- --configuration development
+          echo "Build completed!"
