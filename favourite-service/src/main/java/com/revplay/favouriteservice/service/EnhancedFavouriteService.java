@@ -127,13 +127,13 @@ public class EnhancedFavouriteService {
                 SongDto song = communicationService.getSongById(songId);
                 Map<String, Long> likeCount = communicationService.getSongLikeCount(songId);
                 
-                return Map.of(
+                return Map.<String, Object>of(
                     "song", song,
                     "playCount", playCount,
                     "likeCount", likeCount.getOrDefault("count", 0L)
                 );
             } catch (Exception e) {
-                return Map.of(
+                return Map.<String, Object>of(
                     "songId", songId,
                     "playCount", playCount,
                     "error", "Song details not available"

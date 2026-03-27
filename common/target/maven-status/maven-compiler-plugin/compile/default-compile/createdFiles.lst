@@ -1,0 +1,14 @@
+com\revplay\common\config\LoadBalancerConfig.class
+com\revplay\common\feign\PlaylistServiceClient.class
+com\revplay\common\exception\GlobalExceptionHandler$ResourceNotFoundException.class
+com\revplay\common\exception\GlobalExceptionHandler$ErrorResponse.class
+com\revplay\common\feign\AnalyticsServiceClient.class
+com\revplay\common\feign\FavouriteServiceClient.class
+com\revplay\common\feign\UserServiceClient.class
+com\revplay\common\config\FeignConfig.class
+com\revplay\common\service\ServiceCommunicationService.class
+com\revplay\common\feign\CatalogServiceClient.class
+com\revplay\common\dto\UserDto.class
+com\revplay\common\dto\SongDto.class
+com\revplay\common\exception\GlobalExceptionHandler.class
+com\revplay\common\exception\GlobalExceptionHandler$BusinessException.class
