@@ -1,0 +1,177 @@
+version: '3.8'
+
+services:
+  # Infrastructure Services
+  mysql:
+    image: mysql:8.0
+    container_name: revplay-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: PranjalP@2003
+      MYSQL_DATABASE: revplay_microservices
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - revplay-network
+
+  # Core Microservices
+  config-server:
+    build: ./config-server
+    container_name: revplay-config-server
+    ports:
+      - "8888:8888"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mysql
+    networks:
+      - revplay-network
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: revplay-eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - config-server
+    networks:
+      - revplay-network
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: revplay-api-gateway
+    ports:
+      - "9080:9080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - eureka-server
+      - config-server
+    networks:
+      - revplay-network
+
+  # Business Services
+  user-service:
+    build: ./user-service
+    container_name: revplay-user-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revplay_user_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: PranjalP@2003
+    depends_on:
+      - mysql
+      - eureka-server
+      - config-server
+    networks:
+      - revplay-network
+
+  catalog-service:
+    build: ./catalog-service
+    container_name: revplay-catalog-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revplay_catalog_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: PranjalP@2003
+    depends_on:
+      - mysql
+      - eureka-server
+      - config-server
+    networks:
+      - revplay-network
+
+  playlist-service:
+    build: ./playlist-service
+    container_name: revplay-playlist-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revplay_playlist_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: PranjalP@2003
+    depends_on:
+      - mysql
+      - eureka-server
+      - config-server
+    networks:
+      - revplay-network
+
+  favourite-service:
+    build: ./favourite-service
+    container_name: revplay-favourite-service
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revplay_favourite_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: PranjalP@2003
+    depends_on:
+      - mysql
+      - eureka-server
+      - config-server
+    networks:
+      - revplay-network
+
+  playback-service:
+    build: ./playback-service
+    container_name: revplay-playback-service
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revplay_playback_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: PranjalP@2003
+    depends_on:
+      - mysql
+      - eureka-server
+      - config-server
+    networks:
+      - revplay-network
+
+  analytics-service:
+    build: ./analytics-service
+    container_name: revplay-analytics-service
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revplay_analytics_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: PranjalP@2003
+    depends_on:
+      - mysql
+      - eureka-server
+      - config-server
+    networks:
+      - revplay-network
+
+  # Frontend
+  frontend:
+    build: ./revplay-frontend
+    container_name: revplay-frontend
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_ENV: production
+    depends_on:
+      - api-gateway
+    networks:
+      - revplay-network
+
+volumes:
+  mysql_data:
+
+networks:
+  revplay-network:
+    driver: bridge
