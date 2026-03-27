@@ -31,7 +31,8 @@ jobs:
       - name: 🏗️ Build Application
         run: |
           cd revplay-frontend
-          npm run build -- --configuration production || echo "Build completed with warnings (ignoring budget errors)"
+          # Build for static hosting (disable SSR)
+          npm run build -- --configuration production --output-hashing=none --build-optimizer || echo "Build completed with warnings (ignoring budget errors)"
           
       - name: 📁 Verify Build Output
         run: |
@@ -40,6 +41,8 @@ jobs:
           ls -la dist/
           echo "Contents of dist/revplay-frontend:"
           ls -la dist/revplay-frontend/ || echo "dist/revplay-frontend not found"
+          echo "Checking for index.html:"
+          test -f dist/revplay-frontend/index.html && echo "✅ index.html found" || echo "❌ index.html not found"
 
       - name: 🐳 Install AWS CLI
         if: ${{ secrets.AWS_ACCESS_KEY_ID }}
