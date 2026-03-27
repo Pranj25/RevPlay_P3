@@ -1,0 +1,45 @@
+name: Build Backend Services
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java-version: [17]
+        service: [config-server, eureka-server, api-gateway, user-service, catalog-service, playlist-service, favourite-service, playback-service, analytics-service]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Java ${{ matrix.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build ${{ matrix.service }}
+      working-directory: ./${{ matrix.service }}
+      run: mvn clean compile
+
+    - name: Test ${{ matrix.service }}
+      working-directory: ./${{ matrix.service }}
+      run: mvn test
+
+    - name: Package ${{ matrix.service }}
+      working-directory: ./${{ matrix.service }}
+      run: mvn package -DskipTests
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.service }}-jar
+        path: ${{ matrix.service }}/target/*.jar
