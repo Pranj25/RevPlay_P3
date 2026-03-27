@@ -1,5 +1,6 @@
 {
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
-  ]
+  ],
+  "comment": "trigger redeploy - 2026-03-27"
 }
