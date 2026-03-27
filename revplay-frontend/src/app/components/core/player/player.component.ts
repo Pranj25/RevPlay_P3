@@ -280,7 +280,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private handlePauseSong() {
-    this.pause();
+    if (this.audioPlayer) {
+      const audio = this.audioPlayer.nativeElement;
+      audio.pause();
+      this.isPlaying = false;
+    }
   }
 
   private handleNextSong() {
@@ -291,7 +295,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.previous();
   }
 
-  // ✅ Track current song methods
+  // Track current song methods
   getCurrentSong(): Song | null {
     return this.currentSong;
   }
@@ -302,90 +306,6 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   getCurrentSongArtist(): string {
     return this.currentSong?.artist || '';
-  }
-
-  // ✅ Play/pause functionality
-  togglePlay() {
-    if (!this.audioPlayer || !this.currentSong) {
-      console.log('No audio player or current song');
-      return;
-    }
-
-    const audio = this.audioPlayer.nativeElement;
-
-    if (this.isPlaying) {
-      this.pause();
-    } else {
-      this.resume();
-    }
-  }
-
-  private pause() {
-    if (this.audioPlayer) {
-      const audio = this.audioPlayer.nativeElement;
-      audio.pause();
-      this.isPlaying = false;
-      console.log('Song paused');
-    }
-  }
-
-  private resume() {
-    if (this.audioPlayer) {
-      const audio = this.audioPlayer.nativeElement;
-      audio.play().then(() => {
-        this.isPlaying = true;
-        console.log('Song resumed');
-      }).catch(error => {
-        console.error('Error resuming song:', error);
-      });
-    }
-  }
-
-  // Volume control
-  onVolumeChange(event: any) {
-    if (this.audioPlayer) {
-      const audio = this.audioPlayer.nativeElement;
-      this.volume = event.target.value;
-      audio.volume = this.volume;
-      localStorage.setItem('playerVolume', this.volume.toString());
-    }
-  }
-
-  toggleMute() {
-    if (this.audioPlayer) {
-      const audio = this.audioPlayer.nativeElement;
-      audio.muted = !audio.muted;
-    }
-  }
-
-  // Progress control
-  onSeek(event: any) {
-    if (this.audioPlayer && this.duration > 0) {
-      const audio = this.audioPlayer.nativeElement;
-      const seekTime = (event.target.value / 100) * audio.duration;
-      audio.currentTime = seekTime;
-    }
-  }
-
-  // Playback controls
-  next() {
-    console.log('Next song requested');
-    // TODO: Implement next song logic
-  }
-
-  previous() {
-    console.log('Previous song requested');
-    // TODO: Implement previous song logic
-  }
-
-  toggleRepeat() {
-    this.isRepeat = !this.isRepeat;
-    console.log('Repeat mode:', this.isRepeat ? 'on' : 'off');
-  }
-
-  toggleShuffle() {
-    this.isShuffle = !this.isShuffle;
-    console.log('Shuffle mode:', this.isShuffle ? 'on' : 'off');
   }
 
   // Utility methods
@@ -430,10 +350,5 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   setCurrentSong(song: Song) {
     this.currentSong = song;
     this.playSong(song);
-  }
-
-  // Get current song for other components
-  getCurrentSong(): Song | null {
-    return this.currentSong;
   }
 }

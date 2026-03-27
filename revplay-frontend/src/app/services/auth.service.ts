@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, timer } from 'rxjs';
 import { map, tap, catchError, switchMap } from 'rxjs/operators';
 import { User, LoginRequest, RegisterRequest, AuthResponse } from '../models/user.model';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -15,12 +16,19 @@ export class AuthService {
   private readonly TOKEN_EXPIRY_KEY = 'tokenExpiry';
   private readonly SESSION_KEY = 'sessionStart';
   
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     this.initializeAuthFromStorage();
     this.setupSessionTimer();
   }
 
   private initializeAuthFromStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return; // Skip localStorage access on server
+    }
+    
     const token = localStorage.getItem(this.TOKEN_KEY);
     const user = localStorage.getItem(this.USER_KEY);
     const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
@@ -49,6 +57,10 @@ export class AuthService {
   }
 
   private checkTokenExpiry(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    
     const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
     if (tokenExpiry) {
       const expiryTime = parseInt(tokenExpiry);
@@ -70,6 +82,10 @@ export class AuthService {
   }
 
   get token(): string | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+    
     const token = localStorage.getItem(this.TOKEN_KEY);
     const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
     
@@ -85,6 +101,10 @@ export class AuthService {
   }
 
   private setTokenWithExpiry(token: string, expiresIn: number): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    
     const expiryTime = Date.now() + (expiresIn * 1000); // Convert to milliseconds
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.TOKEN_EXPIRY_KEY, expiryTime.toString());
@@ -100,7 +120,9 @@ export class AuthService {
             this.setTokenWithExpiry(response.token, response.expiresIn);
             
             // Store user data
-            localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
+            if (isPlatformBrowser(this.platformId)) {
+              localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
+            }
             
             // Update behavior subject
             this.currentUserSubject.next(response.user);
@@ -129,6 +151,10 @@ export class AuthService {
   }
 
   private clearStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.TOKEN_EXPIRY_KEY);
@@ -202,6 +228,10 @@ export class AuthService {
   }
 
   getSessionDuration(): number {
+    if (!isPlatformBrowser(this.platformId)) {
+      return 0;
+    }
+    
     const sessionStart = localStorage.getItem(this.SESSION_KEY);
     if (sessionStart) {
       return Date.now() - parseInt(sessionStart);
@@ -210,6 +240,10 @@ export class AuthService {
   }
 
   getTokenRemainingTime(): number {
+    if (!isPlatformBrowser(this.platformId)) {
+      return 0;
+    }
+    
     const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
     if (tokenExpiry) {
       return Math.max(0, parseInt(tokenExpiry) - Date.now());

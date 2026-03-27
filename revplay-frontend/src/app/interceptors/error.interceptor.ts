@@ -1,25 +1,21 @@
-import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpEvent, HttpHandler, HttpRequest, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-@Injectable()
-export class ErrorInterceptor implements HttpInterceptor {
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(req).pipe(
-      catchError((error: HttpErrorResponse) => {
-        // Handle basic network errors
-        if (error.status === 0) {
-          console.error('Network error:', error);
-          showNetworkError();
-        }
-        
-        // Return the error for component-level handling
-        return throwError(() => error);
-      })
-    );
-  }
-}
+export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      // Handle basic network errors
+      if (error.status === 0) {
+        console.error('Network error:', error);
+        showNetworkError();
+      }
+      
+      // Return the error for component-level handling
+      return throwError(() => error);
+    })
+  );
+};
 
 // Helper function to show network error
 function showNetworkError(): void {

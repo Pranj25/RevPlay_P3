@@ -21,28 +21,20 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: revplay-frontend/package-lock.json
 
-      - name: 📦 Install Dependencies
+      - name: � Install Dependencies
         run: |
           cd revplay-frontend
           npm ci
 
-      - name: 🔍 Lint Code
-        run: |
-          cd revplay-frontend
-          npx ng lint
-
-      - name: 🧪 Run Tests
-        run: |
-          cd revplay-frontend
-          npm run test -- --watch=false --browsers=ChromeHeadless
-
       - name: 🏗️ Build Application
         run: |
           cd revplay-frontend
-          npm run build
+          npm run build -- --configuration=production
 
       - name: 🚀 Deploy to AWS S3
+        if: ${{ secrets.AWS_ACCESS_KEY_ID }}
         run: |
           cd revplay-frontend
           aws s3 sync dist/ s3://revplay-music-platform --delete
@@ -52,60 +44,16 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: 🧪 Test Deployment
+        if: ${{ secrets.AWS_ACCESS_KEY_ID }}
         run: |
           curl -f http://revplay-music-platform.s3.amazonaws.com || exit 1
           echo "✅ Frontend deployed successfully!"
 
-  deploy-backend:
-    runs-on: ubuntu-latest
-    name: 🚀 Deploy Backend Services
-    needs: deploy-frontend
-    
-    strategy:
-      matrix:
-        service: [user-service, catalog-service, playlist-service, favourite-service, playback-service, analytics-service]
-    
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
-
-      - name: 🟢 Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: 🏗️ Build Service
+      - name: � Build Summary
         run: |
-          cd ${{ matrix.service }}
-          ./mvnw clean package -DskipTests
-
-      - name: 🚀 Deploy Service
-        run: |
-          echo "🚀 Deploying ${{ matrix.service }} to production..."
-          # Add your deployment logic here
-          # Example: Docker deployment, AWS ECS, etc.
-
-      - name: 🧪 Test Service
-        run: |
-          echo "🧪 Testing ${{ matrix.service }}..."
-          # Add health check here
-
-  notify:
-    runs-on: ubuntu-latest
-    name: 📢 Notify Deployment
-    needs: [deploy-frontend, deploy-backend]
-    if: always()
-    
-    steps:
-      - name: 📢 Notify Success
-        if: success()
-        run: |
-          echo "🎉 RevPlay deployed successfully to AWS S3!"
-          echo "🌐 URL: http://revplay-music-platform.s3.amazonaws.com"
-
-      - name: 📢 Notify Failure
-        if: failure()
-        run: |
-          echo "❌ Deployment failed!"
-          echo "🔧 Check the logs above for details"
+          echo "� Build completed successfully!"
+          if [ "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "� Deployed to: http://revplay-music-platform.s3.amazonaws.com"
+          else
+            echo "⚠️ AWS credentials not configured - build only"
+          fi

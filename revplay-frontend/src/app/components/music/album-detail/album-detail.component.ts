@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { PlayerService } from '../../../services/player.service';
 import { FavouriteService } from '../../../services/favourite.service';
 import { AuthService } from '../../../services/auth.service';
-import { SongService } from '../../../services/song.service';
+import { Song, SongService } from '../../../services/song.service';
 
 interface Album {
   id: number;
@@ -17,20 +17,6 @@ interface Album {
     id: number;
     artistName: string;
   };
-}
-
-export interface Song {
-  id: number;
-  title: string;
-  artist: string;
-  album?: Album;
-  genre?: string;
-  durationSeconds?: number;
-  filePath?: string;
-  coverImagePath?: string;
-  coverImage?: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 @Component({
@@ -69,11 +55,21 @@ export class AlbumDetailComponent implements OnInit {
     this.http.get<Song[]>('http://localhost:8081/api/songs').subscribe({
       next: (allSongs) => {
         this.songs = allSongs
-          .filter(song => song.album?.name.toLowerCase() === albumName.toLowerCase())
+          .filter(song => song.album === albumName)
           .sort((a, b) => a.title.localeCompare(b.title));
         
-        if (this.songs.length > 0 && this.songs[0].album) {
-          this.album = this.songs[0].album;
+        if (this.songs.length > 0) {
+          this.album = {
+            id: 1,
+            name: albumName,
+            description: `Album ${albumName}`,
+            coverArt: '',
+            releaseDate: new Date().toISOString(),
+            artist: {
+              id: 1,
+              artistName: this.songs[0].artist
+            }
+          };
         }
         this.loading = false;
       },
@@ -100,8 +96,8 @@ export class AlbumDetailComponent implements OnInit {
   }
   
   getSongCover(song: Song): string {
-    return song.coverImage 
-      ? `http://localhost:8081${song.coverImage}`
+    return song.coverImagePath 
+      ? `http://localhost:8081/api/catalog/songs/cover/${song.id}`
       : 'http://localhost:8081/images/default-cover.svg';
   }
   

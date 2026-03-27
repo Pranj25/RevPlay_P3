@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
 import { ErrorDisplayComponent } from '../error-display/error-display.component';
 import { PlayerComponent } from '../player/player.component';
@@ -8,7 +9,7 @@ import { PlayerComponent } from '../player/player.component';
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, PlayerComponent, ErrorDisplayComponent],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, PlayerComponent, ErrorDisplayComponent],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss']
 })
