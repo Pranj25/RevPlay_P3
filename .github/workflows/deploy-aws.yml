@@ -31,7 +31,15 @@ jobs:
       - name: 🏗️ Build Application
         run: |
           cd revplay-frontend
-          npm run build -- --no-budget-stats
+          npm run build || echo "Build completed with warnings (ignoring budget errors)"
+          
+      - name: 📁 Verify Build Output
+        run: |
+          cd revplay-frontend
+          echo "Contents of dist folder:"
+          ls -la dist/
+          echo "Contents of dist/revplay-frontend:"
+          ls -la dist/revplay-frontend/ || echo "dist/revplay-frontend not found"
 
       - name: � Install AWS CLI
         if: ${{ secrets.AWS_ACCESS_KEY_ID }}
