@@ -1,6 +1,6 @@
 # 🚀 RevPlay AWS S3 Deployment
 
-name: Deploy to AWS S3
+name: Build Frontend
 
 on:
   push:
@@ -8,70 +8,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-frontend:
+  build-frontend:
     runs-on: ubuntu-latest
-    name: 🚀 Deploy Frontend to AWS S3
+    name: 🚀 Build Frontend
     
+    defaults:
+      run:
+        working-directory: revplay-frontend
+
     steps:
       - name: 📥 Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: revplay-frontend/package-lock.json
 
-      - name: � Install Dependencies
-        run: |
-          cd revplay-frontend
-          npm ci
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
 
-      - name: 🏗️ Build Application
-        run: |
-          cd revplay-frontend
-          # Build for static hosting (disable SSR)
-          npm run build -- --configuration production --output-hashing=none --build-optimizer || echo "Build completed with warnings (ignoring budget errors)"
-          
-      - name: 📁 Verify Build Output
-        run: |
-          cd revplay-frontend
-          echo "Contents of dist folder:"
-          ls -la dist/
-          echo "Contents of dist/revplay-frontend:"
-          ls -la dist/revplay-frontend/ || echo "dist/revplay-frontend not found"
-          echo "Checking for index.html:"
-          test -f dist/revplay-frontend/index.html && echo "✅ index.html found" || echo "❌ index.html not found"
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
 
-      - name: 🐳 Install AWS CLI
-        if: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
+      - name: Build Angular App
+        run: ng build --configuration production
 
-      - name: 🚀 Deploy to AWS S3
-        if: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        run: |
-          cd revplay-frontend
-          aws s3 sync dist/revplay-frontend/ s3://revplay-music-platform --delete
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION || 'us-east-1' }}
-
-      - name: 🧪 Test Deployment
-        if: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        run: |
-          curl -f http://revplay-music-platform.s3.amazonaws.com || exit 1
-          echo "✅ Frontend deployed successfully!"
-
-      - name: � Build Summary
-        run: |
-          echo "� Build completed successfully!"
-          if [ "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
-            echo "� Deployed to: http://revplay-music-platform.s3.amazonaws.com"
-          else
-            echo "⚠️ AWS credentials not configured - build only"
-          fi
+      - name: Verify build output
+        run: ls -R dist
