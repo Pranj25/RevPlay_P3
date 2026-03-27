@@ -37,7 +37,7 @@
               <h3>{{ phase.name }}</h3>
               <p>
                 @if (phase.completed) {
-                  {{ phase.tests.filter(t => t.passed).length }}/{{ phase.tests.length }} Tests Passed
+                  {{ getPassedTestsCount(phase) }}/{{ phase.tests.length }} Tests Passed
                 } @else {
                   Not Started
                 }
@@ -63,7 +63,7 @@
                 <div class="test-message">{{ test.message }}</div>
                 @if (test.details) {
                   <div class="test-details">
-                    @for (detail of Object.keys(test.details); track detail) {
+                    @for (detail of getTestDetailKeys(test.details); track detail) {
                       <div class="detail-item">
                         <strong>{{ detail }}:</strong> 
                         <span>{{ test.details[detail] }}</span>

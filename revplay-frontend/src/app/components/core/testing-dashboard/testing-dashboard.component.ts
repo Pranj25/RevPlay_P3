@@ -97,4 +97,12 @@ export class TestingDashboardComponent implements OnInit {
   getCurrentPhaseIndex(): number {
     return this.testPhases.findIndex(phase => phase.name === this.currentPhase?.name);
   }
+
+  getPassedTestsCount(phase: TestPhase): number {
+    return phase.tests.filter(t => t.passed).length;
+  }
+
+  getTestDetailKeys(details: any): string[] {
+    return Object.keys(details);
+  }
 }

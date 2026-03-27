@@ -33,15 +33,15 @@
         </div>
         <div class="song-info">
           <div class="song-title">{{ song.title }}</div>
-          <div class="song-artist">{{ song.artist?.artistName || 'Unknown Artist' }}</div>
+          <div class="song-artist">{{ song.artist || 'Unknown Artist' }}</div>
         </div>
         <div class="song-genre">{{ song.genre }}</div>
         <button 
           *ngIf="authService.currentUser()"
           type="button"
           class="favorite-btn"
-          (click)="toggleFavorite($event, song.id)"
-          [class.active]="favoriteService.isFavorite(song.id)"
+          (click)="toggleFavorite($event, song.id, song.title, song.artist)"
+          [class.active]="favouriteService.isFavorite(song.id)"
           title="Add to favorites"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">

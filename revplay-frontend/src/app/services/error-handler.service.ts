@@ -222,7 +222,7 @@ export class ErrorHandlerService {
       message: errorDetail?.message || 'Something went wrong on our end. Please try again later.',
       type: 'error',
       action: 'Report Issue',
-      actionCallback: () => this.reportIssue(error as Error)
+      actionCallback: () => this.reportIssue(errorDetail instanceof Error ? errorDetail : new Error(String(errorDetail)))
     };
   }
 

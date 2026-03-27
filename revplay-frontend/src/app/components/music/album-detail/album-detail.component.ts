@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { PlayerService } from '../../services/player.service';
-import { FavoriteService } from '../../services/favorite.service';
-import { AuthService } from '../../services/auth.service';
-import { Song } from '../../services/song.service';
+import { PlayerService } from '../../../services/player.service';
+import { FavouriteService } from '../../../services/favourite.service';
+import { AuthService } from '../../../services/auth.service';
+import { SongService } from '../../../services/song.service';
 
 interface Album {
   id: number;
@@ -17,6 +17,20 @@ interface Album {
     id: number;
     artistName: string;
   };
+}
+
+export interface Song {
+  id: number;
+  title: string;
+  artist: string;
+  album?: Album;
+  genre?: string;
+  durationSeconds?: number;
+  filePath?: string;
+  coverImagePath?: string;
+  coverImage?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 @Component({
@@ -35,8 +49,9 @@ export class AlbumDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
+    private songService: SongService,
     private playerService: PlayerService,
-    public favoriteService: FavoriteService,
+    public favouriteService: FavouriteService,
     public authService: AuthService
   ) {}
   
@@ -46,7 +61,7 @@ export class AlbumDetailComponent implements OnInit {
       this.loadAlbumSongs(decodeURIComponent(albumName));
     }
     if (this.authService.currentUser()) {
-      this.favoriteService.getFavorites().subscribe();
+      this.favouriteService.getFavorites().subscribe();
     }
   }
   
@@ -73,14 +88,14 @@ export class AlbumDetailComponent implements OnInit {
     this.playerService.playSong(song, this.songs);
   }
   
-  toggleFavorite(event: Event, songId: number) {
+  toggleFavorite(event: Event, songId: number, songTitle: string, songArtist: string) {
     event.stopPropagation();
     if (!this.authService.currentUser()) {
       alert('Please login to add favorites');
       return;
     }
-    this.favoriteService.toggleFavorite(songId).subscribe({
-      error: (err) => console.error('Error toggling favorite:', err)
+    this.favouriteService.toggleFavorite(songId, songTitle, songArtist).subscribe({
+      error: (err: any) => console.error('Error toggling favorite:', err)
     });
   }
   
