@@ -1,25 +1,23 @@
 server:
-  port: 9080
+  port: ${PORT:9080}
 
 spring:
   application:
     name: api-gateway
-  config:
-    import: configserver:http://localhost:8888
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   cloud:
-    config:
-      profile: dev
     gateway:
       routes:
         - id: user-service
-          uri: lb://user-service
+          uri: http://localhost:8085
           predicates:
             - Path=/api/users/**
           filters:
             - StripPrefix=2
             
         - id: catalog-service
-          uri: lb://catalog-service
+          uri: http://localhost:8082
           predicates:
             - Path=/api/catalog/**
           filters:
