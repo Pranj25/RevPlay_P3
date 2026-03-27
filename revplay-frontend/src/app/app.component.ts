@@ -6,7 +6,8 @@ import { AuthService } from './services/auth.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, LayoutComponent]
+  imports: [RouterOutlet, LayoutComponent],
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
   title = 'RevPlay';
