@@ -43,3 +43,17 @@ logging:
   level:
     com.revplay.userservice: DEBUG
     org.springframework.security: DEBUG
+
+# Swagger/OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    docExpansion: none
+    disable-swagger-default-url: true
+    displayRequestDuration: true
+    defaultModelsExpandDepth: 1
+    defaultModelExpandDepth: 1

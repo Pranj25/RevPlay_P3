@@ -10,15 +10,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = {"http://localhost:4200", "http://localhost:3000"})
+@Tag(name = "Authentication", description = "User authentication and registration APIs")
 public class AuthController {
     
     @Autowired
     private AuthService authService;
     
+    @Operation(
+        summary = "Register new user",
+        description = "Create a new user account in the RevPlay system",
+        responses = {
+            @ApiResponse(responseCode = "201", description = "User registered successfully", 
+                       content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid user data or user already exists")
+        }
+    )
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
@@ -53,6 +70,15 @@ public class AuthController {
         }
     }
     
+    @Operation(
+        summary = "User login",
+        description = "Authenticate user and return JWT token",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Login successful", 
+                       content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid credentials")
+        }
+    )
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest authRequest) {
         try {
@@ -76,8 +102,17 @@ public class AuthController {
         }
     }
     
+    @Operation(
+        summary = "Validate JWT token",
+        description = "Validate if JWT token is still valid",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Token is valid", 
+                       content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired token")
+        }
+    )
     @PostMapping("/validate")
-    public ResponseEntity<AuthResponse> validateToken(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<AuthResponse> validateToken(@Parameter(description = "Authorization header with Bearer token") @RequestHeader("Authorization") String authHeader) {
         try {
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.badRequest().body(new AuthResponse("Invalid token format"));

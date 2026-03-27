@@ -12,21 +12,21 @@ spring:
     gateway:
       routes:
         - id: user-service
-          uri: lb://USER-SERVICE
+          uri: lb://user-service
           predicates:
             - Path=/api/users/**
           filters:
             - StripPrefix=2
             
         - id: catalog-service
-          uri: lb://CATALOG-SERVICE
+          uri: lb://catalog-service
           predicates:
             - Path=/api/catalog/**
           filters:
             - StripPrefix=2
             
         - id: music-service
-          uri: lb://MUSIC-SERVICE
+          uri: lb://music-service
           predicates:
             - Path=/api/music/**
           filters:
