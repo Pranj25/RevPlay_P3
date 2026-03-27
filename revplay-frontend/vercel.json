@@ -1,16 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/revplay-frontend"
-      }
-    }
-  ],
+  "buildCommand": "npm install --legacy-peer-deps && npx ng build --configuration production",
+  "outputDirectory": "dist/revplay-frontend",
+  "framework": null,
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "comment": "fix output directory - 2026-03-27"
+  ]
 }
