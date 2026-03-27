@@ -1,0 +1,93 @@
+<div class="app-layout">
+  <!-- Error Display Component -->
+  <app-error-display></app-error-display>
+  
+  <aside class="sidebar">
+    <div class="logo">
+      <h1>🎵 RevPlay</h1>
+    </div>
+    
+    <nav class="nav-menu">
+      <a [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+        <span>🏠 Home</span>
+      </a>
+      <a [routerLink]="['/search']" routerLinkActive="active" class="nav-item">
+        <span>🔍 Search</span>
+      </a>
+      <a [routerLink]="['/favorites']" routerLinkActive="active" class="nav-item">
+        <span>❤️ Favorites</span>
+      </a>
+      <a [routerLink]="['/playlists']" routerLinkActive="active" class="nav-item">
+        <span>📚 Playlists</span>
+      </a>
+      <a [routerLink]="['/albums']" routerLinkActive="active" class="nav-item">
+        <span>💿 Albums</span>
+      </a>
+      <a [routerLink]="['/artists']" routerLinkActive="active" class="nav-item">
+        <span>🎤 Artists</span>
+      </a>
+      <a [routerLink]="['/history']" routerLinkActive="active" class="nav-item">
+        <span>📜 History</span>
+      </a>
+    </nav>
+
+    @if (isArtist()) {
+      <div class="upload-section">
+        <a [routerLink]="['/upload-song']" class="btn-upload">📤 Upload Song</a>
+      </div>
+    }
+  </aside>
+
+  <main class="main-content">
+    <header class="top-bar">
+      <div class="search-bar">
+        <input 
+          type="text" 
+          placeholder="🔍 Search songs, artists, albums..."
+          [(ngModel)]="searchQuery"
+          (keydown)="onSearchKeydown($event)"
+          (blur)="onSearch()"
+        >
+      </div>
+      <div class="user-section">
+        @if (authService.currentUser(); as user) {
+          <div class="user-profile" (click)="toggleProfileMenu()">
+            <div class="avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
+          </div>
+          
+          @if (showProfileMenu) {
+            <div class="profile-menu" (clickOutside)="closeProfileMenu()">
+              <div class="menu-header">
+                <div class="avatar-large">{{ user.username.charAt(0).toUpperCase() }}</div>
+                <div class="user-info">
+                  <div class="username">{{ user.username }}</div>
+                  <div class="email">{{ user.email }}</div>
+                </div>
+              </div>
+              <div class="menu-divider"></div>
+              <a [routerLink]="['/profile']" class="menu-item" (click)="closeProfileMenu()">
+                <span>👤 Profile</span>
+              </a>
+              <a [routerLink]="['/settings']" class="menu-item" (click)="closeProfileMenu()">
+                <span>⚙️ Settings</span>
+              </a>
+              <div class="menu-divider"></div>
+              <button class="menu-item logout" (click)="logout()">
+                <span>🚪 Logout</span>
+              </button>
+            </div>
+          }
+        } @else {
+          <a [routerLink]="['/login']" class="btn-login">🔐 Log in</a>
+          <a [routerLink]="['/register']" class="btn-signup">✍️ Sign up</a>
+        }
+      </div>
+    </header>
+
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <app-player></app-player>
+</div>

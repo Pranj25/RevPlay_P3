@@ -1,0 +1,180 @@
+<div class="auth-container">
+  <div class="auth-box">
+    <h1>Sign up for free to start listening</h1>
+    
+    @if (successMessage) {
+      <div class="success-message">
+        {{ successMessage }}
+      </div>
+    }
+    
+    @if (errorMessage) {
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
+    }
+    
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input 
+            type="text" 
+            id="firstName"
+            formControlName="firstName" 
+            placeholder="Enter your first name"
+            [class.error]="firstName?.invalid && firstName?.touched">
+          
+          @if (firstName?.invalid && firstName?.touched) {
+            <div class="error-text">
+              @if (firstName?.errors?.['required']) {
+                First name is required
+              } @else if (firstName?.errors?.['minlength']) {
+                First name must be at least 2 characters
+              }
+            </div>
+          }
+        </div>
+        
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input 
+            type="text" 
+            id="lastName"
+            formControlName="lastName" 
+            placeholder="Enter your last name"
+            [class.error]="lastName?.invalid && lastName?.touched">
+          
+          @if (lastName?.invalid && lastName?.touched) {
+            <div class="error-text">
+              @if (lastName?.errors?.['required']) {
+                Last name is required
+              } @else if (lastName?.errors?.['minlength']) {
+                Last name must be at least 2 characters
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username"
+          formControlName="username" 
+          placeholder="Choose a username"
+          [class.error]="username?.invalid && username?.touched">
+        
+        @if (username?.invalid && username?.touched) {
+          <div class="error-text">
+            @if (username?.errors?.['required']) {
+              Username is required
+            } @else if (username?.errors?.['minlength']) {
+              Username must be at least 3 characters
+            } @else if (username?.errors?.['maxlength']) {
+              Username must be less than 20 characters
+            }
+          </div>
+        }
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input 
+          type="email" 
+          id="email"
+          formControlName="email" 
+          placeholder="name@domain.com"
+          [class.error]="email?.invalid && email?.touched">
+        
+        @if (email?.invalid && email?.touched) {
+          <div class="error-text">
+            @if (email?.errors?.['required']) {
+              Email is required
+            } @else if (email?.errors?.['email']) {
+              Please enter a valid email
+            }
+          </div>
+        }
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password"
+            formControlName="password" 
+            placeholder="Create a password"
+            [class.error]="password?.invalid && password?.touched">
+          
+          @if (password?.invalid && password?.touched) {
+            <div class="error-text">
+              @if (password?.errors?.['required']) {
+                Password is required
+              } @else if (password?.errors?.['minlength']) {
+                Password must be at least 6 characters
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input 
+            type="password" 
+            id="confirmPassword"
+            formControlName="confirmPassword" 
+            placeholder="Confirm your password"
+            [class.error]="confirmPassword?.invalid && confirmPassword?.touched">
+          
+          @if (confirmPassword?.invalid && confirmPassword?.touched) {
+            <div class="error-text">
+              @if (confirmPassword?.errors?.['required']) {
+                Please confirm your password
+              } @else if (registerForm?.errors?.['passwordMismatch']) {
+                Passwords do not match
+              }
+            </div>
+          }
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="role">Account Type</label>
+        <select 
+          id="role"
+          formControlName="role" 
+          [class.error]="role?.invalid && role?.touched">
+          <option value="LISTENER">Listener - I want to discover and enjoy music</option>
+          <option value="ARTIST">Artist - I want to share my music</option>
+        </select>
+        
+        @if (role?.invalid && role?.touched) {
+          <div class="error-text">
+            Please select an account type
+          </div>
+        }
+      </div>
+      
+      <button 
+        type="submit" 
+        class="btn-submit" 
+        [disabled]="registerForm.invalid || isLoading">
+        @if (isLoading) {
+          <span class="spinner"></span>
+          Creating account...
+        } @else {
+          Sign up
+        }
+      </button>
+    </form>
+    
+    <div class="divider"></div>
+    
+    <p class="switch-auth">
+      Already have an account? <a routerLink="/login">Log in here</a>
+    </p>
+  </div>
+</div>

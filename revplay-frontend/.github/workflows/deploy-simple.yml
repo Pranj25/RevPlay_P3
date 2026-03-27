@@ -1,0 +1,188 @@
+# 🚀 RevPlay Simple Deployment (No Docker)
+
+name: 🚀 Deploy RevPlay Frontend
+
+on:
+  push:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  # 🔍 Test and Build
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔍 Run Linting
+        run: npm run lint
+
+      - name: 🧪 Run Unit Tests
+        run: npm run test:ci
+
+      - name: 🏗️ Build Application
+        run: npm run build:prod
+
+      - name: 📦 Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-files
+          path: dist/
+          retention-days: 7
+
+  # 🚀 Deploy to Staging
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop' || github.event.inputs.environment == 'staging'
+    environment: staging
+    
+    steps:
+      - name: 📥 Download Build Files
+        uses: actions/download-artifact@v3
+        with:
+          name: build-files
+          path: dist/
+
+      - name: 🚀 Deploy to Staging (Firebase)
+        run: |
+          echo "🚀 Deploying to Firebase staging..."
+          npx firebase-tools deploy --only hosting:staging --token ${{ secrets.FIREBASE_TOKEN }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: 🚀 Alternative: Deploy to Vercel
+        if: failure()
+        run: |
+          echo "🚀 Deploying to Vercel staging..."
+          npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: 🚀 Alternative: Deploy to Netlify
+        if: failure()
+        run: |
+          echo "🚀 Deploying to Netlify staging..."
+          npx netlify-cli deploy --prod --dir=dist --auth-token ${{ secrets.NETLIFY_AUTH_TOKEN }} --site=revplay-staging
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: 🧪 Test Deployment
+        run: |
+          echo "🧪 Testing staging deployment..."
+          curl -f https://staging.revplay.com || exit 1
+          echo "✅ Staging deployment successful!"
+
+  # 🚀 Deploy to Production
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
+    environment: production
+    
+    steps:
+      - name: 📥 Download Build Files
+        uses: actions/download-artifact@v3
+        with:
+          name: build-files
+          path: dist/
+
+      - name: 🚀 Deploy to Production (Firebase)
+        run: |
+          echo "🚀 Deploying to Firebase production..."
+          npx firebase-tools deploy --only hosting:production --token ${{ secrets.FIREBASE_TOKEN }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: 🚀 Alternative: Deploy to Vercel
+        if: failure()
+        run: |
+          echo "🚀 Deploying to Vercel production..."
+          npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: 🚀 Alternative: Deploy to Netlify
+        if: failure()
+        run: |
+          echo "🚀 Deploying to Netlify production..."
+          npx netlify-cli deploy --prod --dir=dist --auth-token ${{ secrets.NETLIFY_AUTH_TOKEN }} --site=revplay-production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: 🚀 Alternative: Deploy to AWS S3
+        if: failure()
+        run: |
+          echo "🚀 Deploying to AWS S3..."
+          aws s3 sync dist/ s3://www.revplay.com --delete
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_PRODUCTION_ID }} --paths "/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: 🧪 Test Production Deployment
+        run: |
+          echo "🧪 Testing production deployment..."
+          curl -f https://www.revplay.com || exit 1
+          echo "✅ Production deployment successful!"
+
+      - name: 📢 Notify Success
+        if: success()
+        run: |
+          echo "🎉 RevPlay deployed successfully to production!"
+
+  # 🔄 Manual Rollback
+  rollback:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.rollback == 'true'
+    environment: production
+    
+    steps:
+      - name: 🔄 Rollback Production
+        run: |
+          echo "🔄 Rolling back production..."
+          
+          # Firebase rollback
+          npx firebase-tools deploy --only hosting:production --token ${{ secrets.FIREBASE_TOKEN }} --force
+          
+          echo "✅ Rollback completed!"
+
+  # 📊 Performance Test
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 📊 Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.12.x
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: 📊 Upload Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/

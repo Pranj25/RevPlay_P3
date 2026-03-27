@@ -1,0 +1,56 @@
+# 🚀 AWS S3 Deployment Workflow
+
+name: Deploy to AWS S3
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          cd revplay-frontend
+          npm ci
+
+      - name: 🔍 Run Tests
+        run: |
+          cd revplay-frontend
+          npm run test:ci
+
+      - name: 🏗️ Build Application
+        run: |
+          cd revplay-frontend
+          npm run build
+
+      - name: 🚀 Deploy to AWS S3
+        run: |
+          cd revplay-frontend
+          aws s3 sync dist/ s3://revplay-music-app --delete
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: 🧪 Test Deployment
+        run: |
+          curl -f https://revplay-music-app.s3.amazonaws.com || exit 1
+          echo "✅ Deployment successful!"
+
+      - name: 📢 Notify Success
+        run: |
+          echo "🎉 RevPlay deployed successfully to AWS S3!"

@@ -1,0 +1,106 @@
+<div class="testing-dashboard">
+  <div class="dashboard-header">
+    <h1>🧪 Testing Dashboard</h1>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="runCurrentPhaseTests()" [disabled]="isRunning">
+        {{ isRunning ? '⏳ Running...' : '🚀 Run Current Phase' }}
+      </button>
+      <button class="btn btn-secondary" (click)="runAllTests()" [disabled]="isRunning">
+        🔄 Run All Tests
+      </button>
+      <button class="btn btn-danger" (click)="resetTests()" [disabled]="isRunning">
+        🗑️ Reset Tests
+      </button>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+    </div>
+    <div class="progress-text">
+      {{ summary.completedPhases }}/{{ summary.totalPhases }} Phases Complete
+      @if (isAllTestsComplete()) {
+        <span class="success-badge">🎉 All Tests Passed!</span>
+      }
+    </div>
+  </div>
+
+  <div class="phases-container">
+    @for (phase of testPhases; track phase; let i = $index) {
+      <div class="phase-card {{ getPhaseStatusClass(phase) }}" 
+           [class.current]="i === getCurrentPhaseIndex()">
+        <div class="phase-header" (click)="expandPhase(phase)">
+          <div class="phase-info">
+            <span class="phase-icon">{{ getPhaseStatusIcon(phase) }}</span>
+            <div class="phase-details">
+              <h3>{{ phase.name }}</h3>
+              <p>
+                @if (phase.completed) {
+                  {{ phase.tests.filter(t => t.passed).length }}/{{ phase.tests.length }} Tests Passed
+                } @else {
+                  Not Started
+                }
+              </p>
+            </div>
+          </div>
+          <div class="phase-status">
+            <span class="status-badge {{ getPhaseStatusClass(phase) }}">
+              {{ getPhaseStatusClass(phase).toUpperCase() }}
+            </span>
+          </div>
+        </div>
+
+        @if (phase.completed && phase.tests.length > 0) {
+          <div class="phase-tests">
+            @for (test of phase.tests; track test) {
+              <div class="test-item {{ getTestStatusClass(test) }}">
+                <div class="test-header">
+                  <span class="test-icon">{{ getTestStatusIcon(test) }}</span>
+                  <span class="test-name">{{ test.testName }}</span>
+                  <span class="test-status">{{ getTestStatusClass(test).toUpperCase() }}</span>
+                </div>
+                <div class="test-message">{{ test.message }}</div>
+                @if (test.details) {
+                  <div class="test-details">
+                    @for (detail of Object.keys(test.details); track detail) {
+                      <div class="detail-item">
+                        <strong>{{ detail }}:</strong> 
+                        <span>{{ test.details[detail] }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (isAllTestsComplete()) {
+    <div class="completion-banner">
+      <h2>🎉 Testing Complete!</h2>
+      <p>All {{ summary.totalPhases }} testing phases have been completed successfully.</p>
+      <div class="completion-stats">
+        <div class="stat">
+          <strong>{{ summary.totalPhases }}</strong>
+          <span>Total Phases</span>
+        </div>
+        <div class="stat">
+          <strong>{{ summary.completedPhases }}</strong>
+          <span>Completed</span>
+        </div>
+        <div class="stat">
+          <strong>{{ summary.passedPhases }}</strong>
+          <span>Passed</span>
+        </div>
+        <div class="stat">
+          <strong>100%</strong>
+          <span>Success Rate</span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

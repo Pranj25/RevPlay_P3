@@ -1,0 +1,27 @@
+<div class="error-container">
+  @for (error of errorMessages; track error) {
+    <div class="error-message {{ getErrorClass(error.type) }}" 
+         [class.fade-out]="errorMessages.indexOf(error) === errorMessages.length - 1">
+      <div class="error-content">
+        <div class="error-icon">{{ getErrorIcon(error.type) }}</div>
+        <div class="error-text">
+          <div class="error-title">{{ error.title }}</div>
+          <div class="error-description">{{ error.message }}</div>
+        </div>
+        <button class="error-close" (click)="removeError(error)" title="Dismiss">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854z"/>
+          </svg>
+        </button>
+      </div>
+      
+      @if (error.action) {
+        <div class="error-action">
+          <button class="action-btn" (click)="executeErrorAction(error)">
+            {{ error.action }}
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>
