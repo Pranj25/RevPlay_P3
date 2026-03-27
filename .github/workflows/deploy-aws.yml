@@ -30,12 +30,12 @@ jobs:
       - name: 🔍 Lint Code
         run: |
           cd revplay-frontend
-          npm run lint
+          npx ng lint
 
       - name: 🧪 Run Tests
         run: |
           cd revplay-frontend
-          npm run test:ci
+          npm run test -- --watch=false --browsers=ChromeHeadless
 
       - name: 🏗️ Build Application
         run: |
