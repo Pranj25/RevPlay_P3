@@ -20,8 +20,14 @@ export class AuthService {
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    this.initializeAuthFromStorage();
-    this.setupSessionTimer();
+    // Remove initialization from constructor
+  }
+
+  initAuth(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeAuthFromStorage();
+      this.setupSessionTimer();
+    }
   }
 
   private initializeAuthFromStorage(): void {
@@ -39,9 +45,15 @@ export class AuthService {
       
       // Check if token is still valid
       if (currentTime < expiryTime) {
-        this.currentUserSubject.next(JSON.parse(user));
-        // Update session start time
-        localStorage.setItem(this.SESSION_KEY, currentTime.toString());
+        try {
+          const parsedUser = JSON.parse(user);
+          this.currentUserSubject.next(parsedUser);
+          // Update session start time
+          localStorage.setItem(this.SESSION_KEY, currentTime.toString());
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          this.clearStorage();
+        }
       } else {
         // Token expired, clear storage
         this.clearStorage();
