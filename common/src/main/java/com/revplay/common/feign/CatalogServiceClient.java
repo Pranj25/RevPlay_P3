@@ -9,48 +9,48 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@FeignClient(name = "CATALOG-SERVICE")
+@FeignClient(name = "catalog-service", configuration = com.revplay.common.config.FeignConfig.class)
 public interface CatalogServiceClient {
     
-    @GetMapping("/songs/{id}")
+    @GetMapping("/api/songs/{id}")
     SongDto getSongById(@PathVariable("id") Long id);
     
-    @GetMapping("/songs")
+    @GetMapping("/api/songs")
     List<SongDto> getAllSongs();
     
-    @GetMapping("/songs/user/{userId}")
+    @GetMapping("/api/songs/user/{userId}")
     List<SongDto> getSongsByUser(@PathVariable("userId") Long userId);
     
-    @GetMapping("/songs/search")
+    @GetMapping("/api/songs/search")
     List<SongDto> searchSongs(@RequestParam("q") String query);
     
-    @GetMapping("/songs/genre/{genre}")
+    @GetMapping("/api/songs/genre/{genre}")
     List<SongDto> getSongsByGenre(@PathVariable("genre") String genre);
     
-    @GetMapping("/songs/artist/{artist}")
+    @GetMapping("/api/songs/artist/{artist}")
     List<SongDto> getSongsByArtist(@PathVariable("artist") String artist);
     
-    @GetMapping("/songs/most-played")
+    @GetMapping("/api/songs/most-played")
     List<SongDto> getMostPlayedSongs();
     
-    @GetMapping("/songs/latest")
+    @GetMapping("/api/songs/latest")
     List<SongDto> getLatestSongs();
     
-    @PutMapping("/songs/{id}")
+    @PutMapping("/api/songs/{id}")
     SongDto updateSong(@PathVariable("id") Long id, @RequestBody SongDto songDto);
     
-    @DeleteMapping("/songs/{id}")
+    @DeleteMapping("/api/songs/{id}")
     void deleteSong(@PathVariable("id") Long id);
     
-    @PostMapping("/songs/{id}/play")
+    @PostMapping("/api/songs/{id}/play")
     SongDto incrementPlayCount(@PathVariable("id") Long id);
     
-    @GetMapping("/songs/download/{id}")
+    @GetMapping("/api/songs/download/{id}")
     ResponseEntity<Resource> downloadSong(@PathVariable("id") Long id);
     
-    @GetMapping("/songs/cover/{id}")
+    @GetMapping("/api/songs/cover/{id}")
     ResponseEntity<Resource> getCoverImage(@PathVariable("id") Long id);
     
-    @GetMapping("/songs/exists/{id}")
+    @GetMapping("/api/songs/exists/{id}")
     boolean songExists(@PathVariable("id") Long id);
 }

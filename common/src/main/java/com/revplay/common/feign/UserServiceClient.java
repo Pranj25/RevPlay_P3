@@ -6,33 +6,33 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "USER-SERVICE")
+@FeignClient(name = "user-service", configuration = com.revplay.common.config.FeignConfig.class)
 public interface UserServiceClient {
     
-    @GetMapping("/users/{id}")
+    @GetMapping("/api/users/{id}")
     UserDto getUserById(@PathVariable("id") Long id);
     
-    @GetMapping("/users/username/{username}")
+    @GetMapping("/api/users/username/{username}")
     UserDto getUserByUsername(@PathVariable("username") String username);
     
-    @GetMapping("/users")
+    @GetMapping("/api/users")
     List<UserDto> getAllUsers();
     
-    @GetMapping("/users/active")
+    @GetMapping("/api/users/active")
     List<UserDto> getActiveUsers();
     
-    @PostMapping("/users")
+    @PostMapping("/api/users")
     UserDto createUser(@RequestBody UserDto userDto);
     
-    @PutMapping("/users/{id}")
+    @PutMapping("/api/users/{id}")
     UserDto updateUser(@PathVariable("id") Long id, @RequestBody UserDto userDto);
     
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/api/users/{id}")
     void deleteUser(@PathVariable("id") Long id);
     
-    @GetMapping("/users/exists/{id}")
+    @GetMapping("/api/users/exists/{id}")
     boolean userExists(@PathVariable("id") Long id);
     
-    @GetMapping("/users/role/{role}")
+    @GetMapping("/api/users/role/{role}")
     List<UserDto> getUsersByRole(@PathVariable("role") String role);
 }

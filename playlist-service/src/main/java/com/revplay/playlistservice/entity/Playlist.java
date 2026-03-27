@@ -38,6 +38,9 @@ public class Playlist {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    @Column(name = "follower_count")
+    private Integer followerCount = 0;
+    
     // Relationships
     @OneToMany(mappedBy = "playlist", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PlaylistSong> playlistSongs = new HashSet<>();
@@ -79,6 +82,9 @@ public class Playlist {
     
     public Set<PlaylistSong> getPlaylistSongs() { return playlistSongs; }
     public void setPlaylistSongs(Set<PlaylistSong> playlistSongs) { this.playlistSongs = playlistSongs; }
+    
+    public Integer getFollowerCount() { return followerCount; }
+    public void setFollowerCount(Integer followerCount) { this.followerCount = followerCount; }
     
     @PreUpdate
     public void preUpdate() {

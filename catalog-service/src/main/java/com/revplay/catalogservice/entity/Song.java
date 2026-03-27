@@ -37,6 +37,15 @@ public class Song {
     @Column(name = "file_path", nullable = false)
     private String filePath;
     
+    @Column(name = "album_id")
+    private Long albumId;
+    
+    @Column(name = "artist_id", nullable = false)
+    private Long artistId;
+    
+    @Column(name = "uploaded_by", nullable = false)
+    private Long uploadedBy;
+    
     @Column(name = "file_size")
     private Long fileSize;
     
@@ -45,10 +54,6 @@ public class Song {
     
     @Column(name = "cover_image_path")
     private String coverImagePath;
-    
-    @NotNull(message = "Uploaded by is required")
-    @Column(name = "uploaded_by", nullable = false)
-    private Long uploadedBy;
     
     @Column(name = "is_public")
     private Boolean isPublic = true;
@@ -98,6 +103,15 @@ public class Song {
     public String getFilePath() { return filePath; }
     public void setFilePath(String filePath) { this.filePath = filePath; }
     
+    public Long getAlbumId() { return albumId; }
+    public void setAlbumId(Long albumId) { this.albumId = albumId; }
+    
+    public Long getArtistId() { return artistId; }
+    public void setArtistId(Long artistId) { this.artistId = artistId; }
+    
+    public Long getUploadedBy() { return uploadedBy; }
+    public void setUploadedBy(Long uploadedBy) { this.uploadedBy = uploadedBy; }
+    
     public Long getFileSize() { return fileSize; }
     public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
     
@@ -106,9 +120,6 @@ public class Song {
     
     public String getCoverImagePath() { return coverImagePath; }
     public void setCoverImagePath(String coverImagePath) { this.coverImagePath = coverImagePath; }
-    
-    public Long getUploadedBy() { return uploadedBy; }
-    public void setUploadedBy(Long uploadedBy) { this.uploadedBy = uploadedBy; }
     
     public Boolean getIsPublic() { return isPublic; }
     public void setIsPublic(Boolean isPublic) { this.isPublic = isPublic; }

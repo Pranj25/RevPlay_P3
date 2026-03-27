@@ -41,6 +41,18 @@ public interface PlayHistoryRepository extends JpaRepository<PlayHistory, Long> 
            "ORDER BY ph.playedAt DESC")
     List<PlayHistory> findRecentlyPlayedByUser(@Param("userId") Long userId);
     
+    @Query("SELECT ph FROM PlayHistory ph WHERE ph.userId = :userId " +
+           "ORDER BY ph.playedAt DESC LIMIT 50")
+    List<PlayHistory> findLast50PlayedByUser(@Param("userId") Long userId);
+    
+    @Query("SELECT ph FROM PlayHistory ph WHERE ph.userId = :userId " +
+           "ORDER BY ph.playedAt DESC LIMIT :limit")
+    List<PlayHistory> findRecentlyPlayedByUserWithLimit(@Param("userId") Long userId, @Param("limit") int limit);
+    
+    @Modifying
+    @Query("DELETE FROM PlayHistory ph WHERE ph.userId = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
+    
     @Query(value = "SELECT DATE(ph.played_at) as date, COUNT(*) as play_count " +
            "FROM play_history ph WHERE ph.user_id = :userId " +
            "AND ph.played_at >= :startDate " +

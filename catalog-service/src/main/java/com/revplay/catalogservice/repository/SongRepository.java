@@ -17,11 +17,19 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     
     List<Song> findByGenre(String genre);
     
+    List<Song> findByArtistId(Long artistId);
+    
+    List<Song> findByAlbumId(Long albumId);
+    
     List<Song> findByArtistContainingIgnoreCase(String artist);
     
     List<Song> findByTitleContainingIgnoreCase(String title);
     
     List<Song> findByAlbumContainingIgnoreCase(String album);
+    
+    List<Song> findByArtistIdAndIsPublicTrue(Long artistId);
+    
+    List<Song> findByAlbumIdAndIsPublicTrue(Long albumId);
     
     @Query("SELECT s FROM Song s WHERE " +
            "LOWER(s.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +

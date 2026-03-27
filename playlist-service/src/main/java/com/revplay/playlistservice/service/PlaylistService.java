@@ -2,8 +2,10 @@ package com.revplay.playlistservice.service;
 
 import com.revplay.playlistservice.entity.Playlist;
 import com.revplay.playlistservice.entity.PlaylistSong;
+import com.revplay.playlistservice.entity.PlaylistFollow;
 import com.revplay.playlistservice.repository.PlaylistRepository;
 import com.revplay.playlistservice.repository.PlaylistSongRepository;
+import com.revplay.playlistservice.repository.PlaylistFollowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,9 @@ public class PlaylistService {
     
     @Autowired
     private PlaylistSongRepository playlistSongRepository;
+    
+    @Autowired
+    private PlaylistFollowRepository playlistFollowRepository;
     
     public Playlist createPlaylist(Playlist playlist) {
         // Check if playlist name already exists for this user
@@ -120,6 +125,101 @@ public class PlaylistService {
         for (int i = 0; i < songs.size(); i++) {
             songs.get(i).setPositionOrder(i + 1);
             playlistSongRepository.save(songs.get(i));
+        }
+    }
+    
+    // Follow/Unfollow functionality
+    public PlaylistFollow followPlaylist(Long userId, Long playlistId) {
+        // Check if playlist exists and is public
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new RuntimeException("Playlist not found"));
+        
+        if (!playlist.getIsPublic()) {
+            throw new RuntimeException("Cannot follow private playlist");
+        }
+        
+        // Check if already following
+        Optional<PlaylistFollow> existingFollow = playlistFollowRepository.findByUserIdAndPlaylistId(userId, playlistId);
+        if (existingFollow.isPresent()) {
+            throw new RuntimeException("Already following this playlist");
+        }
+        
+        PlaylistFollow follow = new PlaylistFollow(userId, playlistId);
+        PlaylistFollow savedFollow = playlistFollowRepository.save(follow);
+        
+        // Update follower count
+        updatePlaylistFollowerCount(playlistId);
+        
+        return savedFollow;
+    }
+    
+    public void unfollowPlaylist(Long userId, Long playlistId) {
+        PlaylistFollow follow = playlistFollowRepository.findByUserIdAndPlaylistId(userId, playlistId)
+                .orElseThrow(() -> new RuntimeException("Not following this playlist"));
+        
+        playlistFollowRepository.delete(follow);
+        
+        // Update follower count
+        updatePlaylistFollowerCount(playlistId);
+    }
+    
+    public boolean isFollowingPlaylist(Long userId, Long playlistId) {
+        return playlistFollowRepository.findByUserIdAndPlaylistId(userId, playlistId).isPresent();
+    }
+    
+    public List<PlaylistFollow> getUserFollowedPlaylists(Long userId) {
+        return playlistFollowRepository.findByUserId(userId);
+    }
+    
+    public List<PlaylistFollow> getPlaylistFollowers(Long playlistId) {
+        return playlistFollowRepository.findByPlaylistId(playlistId);
+    }
+    
+    public Long getPlaylistFollowerCount(Long playlistId) {
+        return playlistFollowRepository.countByPlaylistId(playlistId);
+    }
+    
+    public Long getUserFollowingCount(Long userId) {
+        return playlistFollowRepository.countByUserId(userId);
+    }
+    
+    public List<Playlist> getPublicPlaylistsByUser(Long userId) {
+        return playlistRepository.findByUserIdAndIsPublicTrue(userId);
+    }
+    
+    public void reorderPlaylistSongs(Long playlistId, Integer fromPosition, Integer toPosition) {
+        List<PlaylistSong> songs = playlistSongRepository.findByPlaylistIdOrderByPositionOrderAsc(playlistId);
+        
+        if (fromPosition >= 1 && fromPosition <= songs.size() && 
+            toPosition >= 1 && toPosition <= songs.size()) {
+            
+            PlaylistSong songToMove = songs.get(fromPosition - 1);
+            
+            if (fromPosition < toPosition) {
+                // Moving down
+                for (int i = fromPosition - 1; i < toPosition - 1; i++) {
+                    songs.get(i).setPositionOrder(i + 1);
+                    playlistSongRepository.save(songs.get(i));
+                }
+            } else {
+                // Moving up
+                for (int i = toPosition - 1; i < fromPosition - 1; i++) {
+                    songs.get(i).setPositionOrder(i + 2);
+                    playlistSongRepository.save(songs.get(i));
+                }
+            }
+            
+            songToMove.setPositionOrder(toPosition);
+            playlistSongRepository.save(songToMove);
+        }
+    }
+    
+    private void updatePlaylistFollowerCount(Long playlistId) {
+        Playlist playlist = playlistRepository.findById(playlistId).orElse(null);
+        if (playlist != null) {
+            Long followerCount = playlistFollowRepository.countByPlaylistId(playlistId);
+            playlist.setFollowerCount(followerCount.intValue());
+            playlistRepository.save(playlist);
         }
     }
 }

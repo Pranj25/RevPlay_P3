@@ -76,8 +76,31 @@ public class PlaybackService {
     }
     
     public List<PlayHistory> getRecentlyPlayedByUser(Long userId, int limit) {
-        List<PlayHistory> history = playHistoryRepository.findRecentlyPlayedByUser(userId);
-        return history.size() > limit ? history.subList(0, limit) : history;
+        return playHistoryRepository.findRecentlyPlayedByUserWithLimit(userId, limit);
+    }
+    
+    public List<PlayHistory> getLast50Played(Long userId) {
+        return playHistoryRepository.findLast50PlayedByUser(userId);
+    }
+    
+    public void clearHistory(Long userId) {
+        playHistoryRepository.deleteByUserId(userId);
+    }
+    
+    public Long getTotalListeningTime(Long userId) {
+        List<PlayHistory> history = playHistoryRepository.findByUserIdOrderByPlayedAtDesc(userId);
+        return history.stream()
+            .mapToLong(ph -> ph.getPlayedDurationSeconds() != null ? ph.getPlayedDurationSeconds() : 0L)
+            .sum();
+    }
+    
+    public List<Object[]> getMostPlayedSongs(Long userId) {
+        return playHistoryRepository.findUserMostPlayedSongs(userId);
+    }
+    
+    public List<Object[]> getDailyStats(Long userId) {
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        return playHistoryRepository.findDailyPlayStats(userId, thirtyDaysAgo);
     }
     
     public List<Object[]> getDailyPlayStats(Long userId, LocalDateTime startDate) {

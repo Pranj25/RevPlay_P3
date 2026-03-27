@@ -50,6 +50,22 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    // Artist Profile Fields
+    @Column(name = "profile_picture_path")
+    private String profilePicturePath;
+    
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+    
+    @Column(name = "account_stats_total_playlists")
+    private Integer totalPlaylists = 0;
+    
+    @Column(name = "account_stats_total_favorites")
+    private Integer totalFavorites = 0;
+    
+    @Column(name = "account_stats_listening_time")
+    private Long listeningTime = 0L; // in seconds
+    
     // Relationships
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Playlist> playlists = new HashSet<>();
@@ -98,6 +114,21 @@ public class User {
     
     public Set<Playlist> getPlaylists() { return playlists; }
     public void setPlaylists(Set<Playlist> playlists) { this.playlists = playlists; }
+    
+    public String getProfilePicturePath() { return profilePicturePath; }
+    public void setProfilePicturePath(String profilePicturePath) { this.profilePicturePath = profilePicturePath; }
+    
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
+    
+    public Integer getTotalPlaylists() { return totalPlaylists; }
+    public void setTotalPlaylists(Integer totalPlaylists) { this.totalPlaylists = totalPlaylists; }
+    
+    public Integer getTotalFavorites() { return totalFavorites; }
+    public void setTotalFavorites(Integer totalFavorites) { this.totalFavorites = totalFavorites; }
+    
+    public Long getListeningTime() { return listeningTime; }
+    public void setListeningTime(Long listeningTime) { this.listeningTime = listeningTime; }
     
     @PreUpdate
     public void preUpdate() {
