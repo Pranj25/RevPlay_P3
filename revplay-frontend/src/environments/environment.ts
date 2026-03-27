@@ -1,22 +1,22 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://revplay-api-gateway.onrender.com',
+  apiUrl: 'http://localhost:9080',
   apiTimeout: 10000,
   enableDebug: true,
   enableAnalytics: false,
   version: '1.0.0',
   
   // Single backend entry point - API Gateway
-  gateway: 'https://revplay-api-gateway.onrender.com',
+  gateway: 'http://localhost:9080',
   
   // Service routes through API Gateway
   services: {
-    auth: 'https://revplay-api-gateway.onrender.com/api/users/auth',
-    catalog: 'https://revplay-api-gateway.onrender.com/api/catalog',
-    playlists: 'https://revplay-api-gateway.onrender.com/api/playlists',
-    favourites: 'https://revplay-api-gateway.onrender.com/api/favourites',
-    playback: 'https://revplay-api-gateway.onrender.com/api/playback',
-    analytics: 'https://revplay-api-gateway.onrender.com/api/analytics'
+    auth: 'http://localhost:9080/api/users/auth',
+    catalog: 'http://localhost:9080/api/catalog',
+    playlists: 'http://localhost:9080/api/playlists',
+    favourites: 'http://localhost:9080/api/favourites',
+    playback: 'http://localhost:9080/api/playback',
+    analytics: 'http://localhost:9080/api/analytics'
   },
   
   // Feature flags
