@@ -3,6 +3,8 @@
   "outputDirectory": "dist/revplay-frontend/browser",
   "framework": null,
   "routes": [
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/(.*)\\.(js|css|png|jpg|jpeg|svg|ico)", "dest": "/$1.$2" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
