@@ -19,14 +19,10 @@ public class GatewayConfig {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
             // User Service Routes
-            .route("user-service", r -> r.path("/api/users/**", "/api/auth/**")
+            .route("user-service", r -> r.path("/api/users/**")
                 .filters(f -> f.circuitBreaker(c -> c.setName("user-service-cb"))
                     .retry(retry -> retry.setRetries(3))
-                    .stripPrefix(1)
-                    .rateLimiter(rateLimiter -> rateLimiter.setKeyResolver(userKeyResolver()))
-                    .requestRateLimiter(config -> config.setKeyResolver(userKeyResolver())
-                        .set replenishRate(100)
-                        .setCapacity(200)))
+                    .stripPrefix(1))
                 .uri("lb://user-service"))
             
             // Catalog Service Routes
@@ -69,31 +65,24 @@ public class GatewayConfig {
 
     @Bean
     public KeyResolver userKeyResolver() {
-        return exchange -> {
-            String userId = exchange.getRequest().getHeaders().getFirst("X-User-Id");
-            if (userId != null) {
-                return Mono.just(userId);
-            }
-            String ip = exchange.getRequest().getRemoteAddress() != null ? 
-                exchange.getRequest().getRemoteAddress().getAddress().getHostAddress() : "unknown";
-            return Mono.just(ip);
-        };
+        return exchange -> exchange.getRequest().getHeaders().getFirst("X-User-ID");
     }
-    
+
     @Bean
-    public Resilience4JCircuitBreakerFactory defaultCircuitBreakerFactory() {
-        Resilience4JCircuitBreakerFactory circuitBreakerFactory = new Resilience4JCircuitBreakerFactory();
-        circuitBreakerFactory.configureDefault(id -> new Resilience4JConfigBuilder(id)
-            .circuitBreakerConfig(CircuitBreakerConfig.custom()
+    public Resilience4JConfigBuilder<Resilience4JConfigBuilder.Resilience4JCircuitBreakerConfig> configBuilder() {
+        return Resilience4JConfigBuilder.<Resilience4JConfigBuilder.Resilience4JCircuitBreakerConfig>builder()
                 .failureRateThreshold(50)
-                .waitDurationInOpenState(Duration.ofMillis(5000))
+                .waitDuration(Duration.ofSeconds(5))
                 .slidingWindowSize(10)
-                .minimumNumberOfCalls(5)
-                .build())
-            .timeLimiterConfig(TimeLimiterConfig.custom()
-                .timeoutDuration(Duration.ofSeconds(5))
-                .build())
-            .build());
-        return circuitBreakerFactory;
+                .minimumNumberOfCalls(5);
+    }
+
+    @Bean
+    public Resilience4JConfigBuilder<Resilience4JConfigBuilder.Resilience4JTimeLimiterConfig> timeLimiterConfig() {
+        return Resilience4JConfigBuilder.<Resilience4JConfigBuilder.Resilience4JTimeLimiterConfig>builder()
+                .limitForPeriod(Duration.ofSeconds(60))
+                .limitRefreshPeriod(Duration.ofSeconds(60))
+                .timeoutDuration(Duration.ofSeconds(3))
+                .limitSize(200);
     }
 }
