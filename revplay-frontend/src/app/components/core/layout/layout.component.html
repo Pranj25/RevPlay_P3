@@ -52,13 +52,13 @@
       <div class="user-section">
         @if (authService.currentUser(); as user) {
           <div class="user-profile" (click)="toggleProfileMenu()">
-            <div class="avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
+            <div class="avatar">{{ user?.username?.charAt(0)?.toUpperCase() || 'U' }}</div>
           </div>
           
           @if (showProfileMenu) {
             <div class="profile-menu" (clickOutside)="closeProfileMenu()">
               <div class="menu-header">
-                <div class="avatar-large">{{ user.username.charAt(0).toUpperCase() }}</div>
+                <div class="avatar-large">{{ user?.username?.charAt(0)?.toUpperCase() || 'U' }}</div>
                 <div class="user-info">
                   <div class="username">{{ user.username }}</div>
                   <div class="email">{{ user.email }}</div>
