@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm install --legacy-peer-deps && npx ng build --configuration production",
-  "outputDirectory": "dist/revplay-frontend",
+  "outputDirectory": "dist/revplay-frontend/browser",
   "framework": null,
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
