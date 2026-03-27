@@ -14,8 +14,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
-@Transactional
+// Temporarily disable this service to fix startup issues
+// @Service
+// @Transactional
 public class EnhancedFavouriteService {
     
     @Autowired

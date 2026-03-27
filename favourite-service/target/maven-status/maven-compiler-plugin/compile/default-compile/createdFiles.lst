@@ -1,4 +1,5 @@
 com\revplay\favouriteservice\service\FavouriteService.class
+com\revplay\favouriteservice\service\BasicFavouriteService.class
 com\revplay\favouriteservice\controller\FavouriteController.class
 com\revplay\favouriteservice\entity\Favourite.class
 com\revplay\favouriteservice\dto\LikeRequest.class

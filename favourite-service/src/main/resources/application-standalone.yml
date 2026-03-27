@@ -4,8 +4,6 @@ server:
 spring:
   application:
     name: favourite-service
-  config:
-    import: optional:configserver:http://localhost:8888
   datasource:
     url: jdbc:mysql://localhost:3306/revplay_favourite_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
@@ -20,16 +18,15 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
-# Temporarily disable Eureka for standalone testing
-# eureka:
-#   client:
-#     service-url:
-#       defaultZone: http://localhost:8761/eureka/
-#     register-with-eureka: true
-#     fetch-registry: true
-#   instance:
-#     hostname: localhost
-#     prefer-ip-address: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
 
 # Logging
 logging:
